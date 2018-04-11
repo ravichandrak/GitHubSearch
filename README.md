@@ -1,2 +1,2 @@
 # GitHubSearch
-Web application using GitHub Search Api
+Javascript based application using GitHub Search Api
