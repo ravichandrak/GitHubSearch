@@ -1,0 +1,375 @@
+<html><head>
+	<meta charset="utf-8">
+	<title>GitHub Api</title>
+	<meta name="viewport" content="width=device-width,initial-scale=1">	
+</head>
+<body>
+	<nav class="navbar navbar-fixed navbar-inverse">
+		<div class="container-fluid">
+			<div class="navbar-header">
+				<a class="navbar-brand">GitHub Repository Search</a>
+			</div>
+			
+		</div>
+	</nav>
+	<div class="container">
+		<div class="row">
+			<div class="jumbotron">
+				<form method="post" class="form-inline clearfix" role="form" action="javascript:void(0)" name="searchForm" id="searchForm">
+					<div class="col-xs-10 col-xs-offset-2">
+						<div class="form-group col-xs-8">
+							<input type="text" class="form-control" name="search-box" id="search-box" placeholder="Enter search terms here" autofocus="">
+						</div>
+						<button class="btn btn-info" value="Search" id="searchBtn">Search</button>
+					</div>
+				</form>
+			</div>
+		</div>
+		
+		<div class="row">
+			<div class="col-xs-6 repoResCount" style="display:none"></div>
+			
+			<div class="col-xs-6 repoSortContainer" style="display:none"></div>
+			
+		</div>
+		
+		<div class="row">
+			<div class="well searchResult col-xs-12 col-md-12 clearfix" style="display:none"></div>
+		</div>
+		
+		<div class="row navigationCont" style="">
+			<div class="text-center compact-theme simple-pagination"></div>
+		</div>
+		
+	</div>
+
+
+<script type="text/javascript" src="js/jquery.min.js"></script>
+<script type="text/javascript" src="js/bootstrap.min.js"></script>
+<script type="text/javascript" src="js/jquery.simplePagination.js"></script>
+<link type="text/css" rel="stylesheet" href="css/simplePagination.css">
+<link type="text/css" rel="stylesheet" href="css/bootstrap.min.css">	
+
+<script>
+	$('document').ready(function() {
+	
+		var requestUrl = "https://api.github.com/search/repositories"
+		var endPtUrl;
+		var searchItem;
+		var initialized = false;
+		var sortByCondUrl;
+		var dropDwnTxt;
+		
+		var sortByArr = ["", "stars", "forks", "updated"];
+		
+		var orderByTxt = ["Best Match", ["Most Stars", "Least Stars"], ["Most Forks", "Least Forks"], ["Recently Updated", "Least Recently Updated"]];
+		
+		$('.searchResult').hide();
+		
+		$("#searchBtn").click(function() {
+			
+			searchItem = $("#search-box").val();
+			
+			endPtUrl = requestUrl + "?q=" + searchItem;
+			
+			sortByCondUrl = undefined;
+			
+			dropDwnTxt = undefined;
+			
+			initialized = false;
+			
+			console.log(sortByCondUrl + " ---- " + dropDwnTxt);
+			
+			processRequest(endPtUrl);
+		});
+		
+		function escapeString(str) {
+			return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+		}
+		
+		function processRequest($endPtUrl)
+		{
+			$(".navigationCont").hide();
+		
+			$.ajax({
+				dataType : 'json',
+				url: $endPtUrl,
+				success: function(data) {
+					
+					$(".searchResult").empty().show();
+					
+					$(".navigationCont").show();
+					
+					var repoRes = data;
+					
+					console.log(data);
+					
+					var totResCount = repoRes.total_count;
+					var itemsArr = repoRes.items;
+					
+					var totPages = Math.ceil(totResCount / itemsArr.length);
+					
+					if (!initialized)
+					{
+						initialized = true;
+						
+						if (totPages > 1000)
+							totPages = 1000;
+						
+						$(".navigationCont div").pagination({
+							items : totPages,
+							itemsOnPage : 30,
+							cssStyle : 'compact-theme',
+							onInit : paginationReady,
+							onPageClick : navigationClick
+						});
+						
+						prepareSortDropDown();
+						
+					}
+					
+					var htmlStr = "";
+					
+					$(".repoResCount").show().html("<h3>" + totResCount.toLocaleString() + " repository results</h3>");
+					
+					var i;
+					
+					for (i=0; i<itemsArr.length; i++)
+					{
+						var repoName = itemsArr[i].full_name;
+						var htmlUrl = itemsArr[i].html_url;
+						
+						var desc = itemsArr[i].description;
+						var totForks = itemsArr[i].forks;
+						var totStars = itemsArr[i].stargazers_count;
+						
+						var avatrUrl = itemsArr[i].owner.avatar_url;
+						var licenseObj = itemsArr[i].license;
+						
+						var lang = itemsArr[i].language;
+						
+						htmlStr += "<div class='col-xs-12 repoContainer'>";
+						htmlStr += "<div class='col-xs-8 repositoryInfo'>";
+						htmlStr += "<h3><a href='" + htmlUrl + "' target='_blank'>" + repoName + "</a></h3>";
+						
+						
+						if (desc != null)
+							htmlStr += "<p class='text-muted'>" + escapeString(desc) +"</p>";
+						
+						htmlStr += "<div>";
+						
+						if (licenseObj != null)
+						{
+							htmlStr += "<p class='text-muted'>" + licenseObj.name + "</p>";
+						}
+						
+						htmlStr += "</div>";
+						htmlStr += "</div>"; <!-- end of 8 column width div -->
+						
+						htmlStr += "<div class='col-xs-2 languageDiv text-center'>";
+						
+						if (lang != null)
+						{
+							htmlStr += "<p><span class='glyphicon glyphicon-tag'></span>&nbsp;" + lang + "</p>";
+						}
+						
+						htmlStr += "</div>"; <!-- end of language div -->
+						
+						htmlStr += "<div class='col-xs-2 likesDiv text-right'>";
+						
+						if (totStars > 0)
+							htmlStr += "<p><a href='" + htmlUrl + "/stargazers' class='muted-link' target='_blank'><span class='glyphicon glyphicon-star'></span>&nbsp;" + totStars + "</a></p>";
+						
+						htmlStr += "</div>";
+						htmlStr += "</div>";
+					}
+					
+					$('.searchResult').html(htmlStr);
+					
+				},
+				error: function(xhr, type, exception) {
+					console.log(xhr);
+				}
+			});
+		}
+		
+		function paginationReady()
+		{
+			var unOrdlist = $('.navigationCont div').find('ul');
+			if(unOrdlist.length > 0)
+			{
+				$(unOrdlist).addClass("paginationList");
+			}
+		}
+		
+		function navigationClick(pageNo, evt)
+		{
+			evt.preventDefault();
+			
+			if (sortByCondUrl === undefined)
+				endPtUrl = requestUrl + "?q=" + searchItem + "&page=" + pageNo;
+			else
+				endPtUrl = sortByCondUrl + "&page=" + pageNo;
+				
+			processRequest(endPtUrl);
+		}
+		
+		function prepareSortDropDown()
+		{
+			var htmlStr = '<div class="btn-group pull-right"><button type="button" class="btn btn-default dropdown-toggle"';
+			
+			var glyphiconStr = '<span class="glyphicon blankspace"></span>';
+			
+			if (dropDwnTxt === undefined)
+				htmlStr += 'data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Sort : Best Match <span class="caret"></span></button>';
+			else
+				htmlStr += 'data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Sort : ' + dropDwnTxt + ' <span class="caret"></span></button>';
+			
+			htmlStr += 	'<ul class="dropdown-menu">';
+			htmlStr += 	'<h4 class="dropdown-header">Sort options</h4>';
+			
+			for (var i=0; i<sortByArr.length; i++)
+			{
+				htmlStr +=	'<li role="separator" class="divider"></li>';
+				
+				var ordrBy = "desc";
+				
+				if (typeof orderByTxt[i] === 'object')
+				{
+					for (var c=0; c<orderByTxt[i].length; c++)
+					{
+						if (dropDwnTxt == orderByTxt[i][c])
+							htmlStr +=	'<li class="dropdown-menu-link-disabled"><span class="glyphicon glyphicon-ok blankspace"></span><p data-name="' + sortByArr[i] + '" data-orderby="' + ordrBy + '">' + orderByTxt[i][c] + '</p></li>';
+						else
+							htmlStr +=	'<li class="dropdown-menu-link"><span class="glyphicon blankspace"></span><a href="javascript:void(0)" data-name="' + sortByArr[i] + '" data-orderby="' + ordrBy + '">' + orderByTxt[i][c] + '</a></li>';
+						
+						
+						ordrBy = (ordrBy == "desc") ? "asc" : ordrBy;
+						
+						if (c!= orderByTxt[i].length - 1)
+							htmlStr +=	'<li role="separator" class="divider"></li>';
+					}
+				}
+				else
+				{
+					if (dropDwnTxt === undefined)
+						htmlStr +=	'<li class="dropdown-menu-link-disabled"><span class="glyphicon glyphicon-ok blankspace"></span><p data-name="' + sortByArr[i] + '" data-orderby="' + ordrBy + '">' + orderByTxt[0] + '</p></li>';
+					else
+					{
+						if (dropDwnTxt == orderByTxt[0])
+							htmlStr +=	'<li class="dropdown-menu-link-disabled"><span class="glyphicon glyphicon-ok blankspace"></span><p data-name="' + sortByArr[i] + '" data-orderby="' + ordrBy + '">' + orderByTxt[0] + '</p></li>';
+						else
+							htmlStr +=	'<li class="dropdown-menu-link"><span class="glyphicon blankspace"></span><a href="javascript:void(0)" data-name="' + sortByArr[i] + '" data-orderby="' + ordrBy + '">' + orderByTxt[0] + '</a></li>';
+					}
+				}
+			}
+			
+			htmlStr +=	'</ul>';
+			htmlStr += 	'</div>';
+			
+			$('.repoSortContainer').show().html(htmlStr);
+		}
+		
+		$(document).on("click", ".dropdown-menu-link", function(e) {
+			var selName = $(this).find('a').attr('data-name');
+			var orderBy = $(this).find('a').attr('data-orderby');
+			
+			dropDwnTxt = $(this).find('a').text();
+			
+			$(this).find(":first-child").addClass("glyphicon-ok");
+			
+			console.log($(this).find(":first-child").attr('class'));
+			
+			sortByCondUrl = requestUrl + "?q=" + searchItem + "&sort=" + selName + "&order=" + orderBy;
+			
+			initialized = false;
+			
+			processRequest(sortByCondUrl);
+		});
+	});
+</script>
+<style>
+
+.jumbotron
+{
+	margin-bottom : 10px;
+}
+
+.navbar-inverse
+{
+	border-radius : 0px;
+}
+
+.repoContainer, .repositoryInfo
+{
+	margin : 0;
+	padding : 0;
+}
+
+.repoContainer:not(:last-child)
+{
+	border-bottom : 1px solid #e1e4e8;
+}
+
+.languageDiv > p, .likesDiv > p
+{
+	margin-top : 20px;
+	margin-bottom : 10px;
+}
+
+.repositoryInfo > h3 > a
+{
+	color: #0366d6;
+}
+
+.repoResCount
+{
+	padding-left : 0px;
+	margin-bottom : 10px;
+}
+
+a.muted-link
+{
+	color: #586069;
+}
+
+a.muted-link:hover
+{
+	color: #0366d6;
+	text-decoration: none;
+}
+
+.simple-pagination > ul > li > *, .compact-theme .ellipse
+{
+	padding : 7px 12px;
+}
+
+.paginationList
+{
+	display: inline-block;
+}
+
+.repoSortContainer
+{
+	margin-top : 15px;
+}
+
+.dropdown-menu
+{
+	min-width : 250px;
+}
+
+.dropdown-menu > li > a, .dropdown-menu > li > p
+{
+	padding: 3px 20px;
+	margin : 0px;
+	display : inline-block;
+}
+
+.blankspace
+{
+	padding-left : 10px;
+}
+</style>
+</body>
+</html>
