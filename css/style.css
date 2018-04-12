@@ -1,0 +1,80 @@
+.jumbotron
+{
+	margin-bottom : 10px;
+}
+
+.navbar-inverse
+{
+	border-radius : 0px;
+}
+
+.repoContainer, .repositoryInfo
+{
+	margin : 0;
+	padding : 0;
+}
+
+.repoContainer:not(:last-child)
+{
+	border-bottom : 1px solid #e1e4e8;
+}
+
+.languageDiv > p, .likesDiv > p
+{
+	margin-top : 20px;
+	margin-bottom : 10px;
+}
+
+.repositoryInfo > h3 > a
+{
+	color: #0366d6;
+}
+
+.repoResCount
+{
+	padding-left : 0px;
+	margin-bottom : 10px;
+}
+
+a.muted-link
+{
+	color: #586069;
+}
+
+a.muted-link:hover
+{
+	color: #0366d6;
+	text-decoration: none;
+}
+
+.simple-pagination > ul > li > *, .compact-theme .ellipse
+{
+	padding : 7px 12px;
+}
+
+.paginationList
+{
+	display: inline-block;
+}
+
+.repoSortContainer
+{
+	margin-top : 15px;
+}
+
+.dropdown-menu
+{
+	min-width : 250px;
+}
+
+.dropdown-menu > li > a, .dropdown-menu > li > p
+{
+	padding: 3px 20px;
+	margin : 0px;
+	display : inline-block;
+}
+
+.blankspace
+{
+	padding-left : 10px;
+}
