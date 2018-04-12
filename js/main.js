@@ -1,7 +1,6 @@
 // Author : Ravichandra K
 // Library used : simplePagination.js for pagination, Jquery for DOM manipulation
 // API Used : GitHub Search API
-// 
 
 $('document').ready(function() {
 	
