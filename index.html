@@ -1,0 +1,55 @@
+<html>
+<head>
+	<meta charset="utf-8"/>
+	<title>GitHub Search Api</title>
+	<meta name="viewport" content="width=device-width,initial-scale=1"/>
+</head>
+<body>
+	<nav class="navbar navbar-fixed navbar-inverse">
+		<div class="container-fluid">
+			<div class="navbar-header">
+				<a class="navbar-brand">GitHub Repository Search</a>
+			</div>
+		</div>
+	</nav>
+	<!-- End of header navigation bar -->
+	
+	<div class="container">
+		<div class="row">
+			<div class="jumbotron">
+				<form method="post" class="form-inline clearfix" role="form" action="javascript:void(0)" name="searchForm" id="searchForm">
+					<div class="col-xs-10 col-xs-offset-2">
+						<div class="form-group col-xs-8">
+							<input type="text" class="form-control" name="search-box" id="search-box" placeholder="Enter search terms here" autofocus="">
+						</div>
+						<button class="btn btn-info" value="Search" id="searchBtn">Search</button>
+					</div>
+				</form>
+			</div> <!-- end of jumbotron -->
+		</div>
+		
+		<div class="row">
+			<div class="col-xs-6 repoResCount" style="display:none"></div>
+			<div class="col-xs-6 repoSortContainer" style="display:none"></div>
+		</div>
+		
+		<div class="row">
+			<div class="well searchResult col-xs-12 col-md-12 clearfix" style="display:none"></div>
+		</div>
+		
+		<div class="row navigationCont" style="">
+			<div class="text-center compact-theme simple-pagination"></div>
+		</div>
+		
+	</div> <!--End of container div -->
+
+<script type="text/javascript" src="js/jquery.min.js"></script>
+<script type="text/javascript" src="js/bootstrap.min.js"></script>
+<script type="text/javascript" src="js/jquery.simplePagination.js"></script>
+<link type="text/css" rel="stylesheet" href="css/simplePagination.css"/>
+<link type="text/css" rel="stylesheet" href="css/bootstrap.min.css"/>	
+<link type="text/css" rel="stylesheet" href="css/style.css"/>
+<script type="text/javascript" src="js/main.js"></script>
+
+</body>
+</html>
