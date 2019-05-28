@@ -14,5 +14,5 @@
 #### Libraries Used
 
 * jQuery
-* jquery simple pagination
+* jQuery Simple Pagination
 
